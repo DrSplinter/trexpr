@@ -59,8 +59,16 @@ impl<E: Expr> IntoExpr for E {
 
 impl IntoExpr for f32 {
     type Item = f32;
-
     type IntoExpr = Lit<f32>;
+
+    fn into_expr(self) -> Self::IntoExpr {
+        Lit::new(self)
+    }
+}
+
+impl<'a> IntoExpr for &'a str {
+    type Item = &'a str;
+    type IntoExpr = Lit<&'a str>;
 
     fn into_expr(self) -> Self::IntoExpr {
         Lit::new(self)

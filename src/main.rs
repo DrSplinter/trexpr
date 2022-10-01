@@ -59,5 +59,8 @@ async fn main() {
     let close = exchange.clone().close();
     let open = exchange.open();
 
-    when(close.lt(open), -1.0, 1.0).print().to_future().await;
+    when(close.lt(open), "be in NO trade", "be in BUY trade")
+        .print()
+        .to_future()
+        .await;
 }
