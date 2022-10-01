@@ -1,5 +1,6 @@
-use crate::Trexpr;
+use crate::Expr;
 
+#[derive(Clone)]
 pub struct Lit<T> {
     val: T,
 }
@@ -10,7 +11,7 @@ impl<T> Lit<T> {
     }
 }
 
-impl<T: Clone> Trexpr for Lit<T> {
+impl<T: Clone> Expr for Lit<T> {
     type Item = T;
 
     type Stream = futures::stream::Repeat<T>;

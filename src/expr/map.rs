@@ -1,7 +1,8 @@
-use futures::{future, StreamExt};
+use futures::StreamExt;
 
-use crate::Trexpr;
+use crate::Expr;
 
+#[derive(Clone)]
 pub struct Map<F, A> {
     function: F,
     argument: A,
@@ -9,7 +10,7 @@ pub struct Map<F, A> {
 
 impl<A, F, T> Map<F, A>
 where
-    A: Trexpr,
+    A: Expr,
     F: FnMut(A::Item) -> T,
 {
     pub fn new(function: F, argument: A) -> Self {
@@ -17,10 +18,10 @@ where
     }
 }
 
-impl<A, F, T> Trexpr for Map<F, A>
+impl<A, F, T> Expr for Map<F, A>
 where
-    A: Trexpr,
-    F: FnMut(<<A as Trexpr>::Stream as futures::stream::Stream>::Item) -> T,
+    A: Expr,
+    F: FnMut(<A::Stream as futures::Stream>::Item) -> T,
 {
     type Item = T;
 
