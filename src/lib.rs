@@ -66,6 +66,15 @@ impl IntoExpr for f32 {
     }
 }
 
+impl IntoExpr for f64 {
+    type Item = f64;
+    type IntoExpr = Lit<f64>;
+
+    fn into_expr(self) -> Self::IntoExpr {
+        Lit::new(self)
+    }
+}
+
 impl<'a> IntoExpr for &'a str {
     type Item = &'a str;
     type IntoExpr = Lit<&'a str>;

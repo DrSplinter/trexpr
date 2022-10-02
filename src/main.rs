@@ -1,41 +1,43 @@
+use std::ops::Mul;
+
 use trexpr::expr::{Map, Map2};
-use trexpr::{iter, when, Action, Expr};
+use trexpr::{iter, lit, when, Action, Expr};
 
 #[derive(Clone)]
-struct Bar {
-    open: f32,
-    close: f32,
+struct Candle {
+    open: f64,
+    close: f64,
 }
 
-impl Bar {
-    fn new(open: f32, close: f32) -> Bar {
-        Bar { open, close }
+impl Candle {
+    fn new(open: f64, close: f64) -> Candle {
+        Candle { open, close }
     }
 }
 
 //  Bar expression
 
-trait BarExpr: Expr<Item = Bar> + Sized {
-    fn close(self) -> Map<fn(Bar) -> f32, Self> {
+trait BarExpr: Expr<Item = Candle> + Sized {
+    fn close(self) -> Map<fn(Candle) -> f64, Self> {
         self.map(|bar| bar.close)
     }
 
-    fn open(self) -> Map<fn(Bar) -> f32, Self> {
+    fn open(self) -> Map<fn(Candle) -> f64, Self> {
         self.map(|bar| bar.open)
     }
 }
 
-impl<E> BarExpr for E where E: Expr<Item = Bar> {}
+impl<E> BarExpr for E where E: Expr<Item = Candle> {}
 
 //  Comparisson expression
 
 trait CmpExpr: Expr + Sized {
-    fn less_than<T>(self, other: T) -> Map2<fn((Self::Item, T::Item)) -> bool, Self, T>
+    fn greater_than<T>(self, other: T) -> Map2<fn((Self::Item, T::Item)) -> bool, Self, T>
     where
         T: Expr,
         Self::Item: PartialOrd<T::Item>,
     {
-        trexpr::map((self, other), |(a, b)| a < b)
+        trexpr::map((self, other), |(a, b)| a > b)
     }
 }
 
@@ -46,20 +48,40 @@ where
 {
 }
 
+// Number expression
+
+trait NumberExpr: Expr + Sized {
+    fn scale<T, O>(self, other: T) -> Map2<fn((Self::Item, T::Item)) -> O, Self, T>
+    where
+        T: Expr,
+        Self::Item: Mul<T::Item, Output = O>,
+    {
+        trexpr::map((self, other), |(a, b)| a * b)
+    }
+}
+
+impl<E> NumberExpr for E
+where
+    E: Expr,
+    E::Item: Mul,
+{
+}
+
 #[tokio::main]
 async fn main() {
-    let prices = iter([
-        Bar::new(1.0, 1.0),
-        Bar::new(1.0, 1.6),
-        Bar::new(1.7, 1.8),
-        Bar::new(1.8, 1.5),
-        Bar::new(1.4, 1.5),
+    let bf_ethbtc_1min_candles = iter([
+        Candle::new(1.0, 1.0),
+        Candle::new(1.0, 1.6),
+        Candle::new(1.7, 1.8),
+        Candle::new(1.8, 1.5),
+        Candle::new(1.4, 1.5),
     ]);
+    let balance = iter([1000.0, 1000.0, 1000.0, 1000.0, 1000.0]);
 
-    let close = prices.clone().close();
-    let open = prices.open();
+    let close = bf_ethbtc_1min_candles.clone().close();
+    let open = bf_ethbtc_1min_candles.open();
 
-    when(close.less_than(open), "be in NO trade", "be in BUY trade")
+    when(close.greater_than(open), balance.scale(lit(0.01)), 0.0)
         .print()
         .execute()
         .await;
