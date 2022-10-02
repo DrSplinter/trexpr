@@ -69,17 +69,19 @@ where
 
 #[tokio::main]
 async fn main() {
-    let bf_ethbtc_1min_candles = iter([
+    // let candles = bitfinex(Candle1min, "eth", "btc");
+    let candles = iter([
         Candle::new(1.0, 1.0),
         Candle::new(1.0, 1.6),
         Candle::new(1.7, 1.8),
         Candle::new(1.8, 1.5),
         Candle::new(1.4, 1.5),
     ]);
+    // let balance = balance(Bitfinex, api_key);
     let balance = iter([1000.0, 1000.0, 1000.0, 1000.0, 1000.0]);
 
-    let close = bf_ethbtc_1min_candles.clone().close();
-    let open = bf_ethbtc_1min_candles.open();
+    let close = candles.clone().close();
+    let open = candles.open();
 
     when(close.greater_than(open), balance.scale(lit(0.01)), 0.0)
         .print()
@@ -93,8 +95,8 @@ async fn main() {
 
 // #[tokio::main]
 // async fn main() {
-//     let bf = bitfinex("eth", "btc", Bar1min);
-//     let kr = kraken("eth", "btc", Bar1min);
+//     let bf = bitfinex(Candle1min, "eth", "btc");
+//     let kr = kraken(Candle1min, "eth", "btc");
 //     let bf_got_above_kr = (&bf).close().got_above((&kr).close());
 //     let bf_got_below_kr = bf.close().got_below(kr.close());
 //     let time_bf_was_above_kr = time_since(&bf_got_above_kr, not(&bf_got_below_kr));
