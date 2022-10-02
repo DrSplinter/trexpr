@@ -30,7 +30,7 @@ impl<E> BarExpr for E where E: Expr<Item = Bar> {}
 //  Comparisson expression
 
 trait CmpExpr: Expr + Sized {
-    fn lt<T>(self, other: T) -> Map2<fn((Self::Item, T::Item)) -> bool, Self, T>
+    fn less_than<T>(self, other: T) -> Map2<fn((Self::Item, T::Item)) -> bool, Self, T>
     where
         T: Expr,
         Self::Item: PartialOrd<T::Item>,
@@ -59,8 +59,18 @@ async fn main() {
     let close = exchange.clone().close();
     let open = exchange.open();
 
-    when(close.lt(open), "be in NO trade", "be in BUY trade")
+    when(close.less_than(open), "be in NO trade", "be in BUY trade")
         .print()
         .to_future()
         .await;
+
+    // let close = exchange.close();
+    // let ma = (&close).ma(5);
+    // let cross = close.cross_up(ma);
+    // let time_since_last_cross = time_since(&cross, close.greater_than(ma)).time_shift(-1);
+
+    // when(cross.and(time_since_last_cross < 10), "be in NO trade", "be in BUY trade")
+    //     .print()
+    //     .to_future()
+    //     .await;
 }
