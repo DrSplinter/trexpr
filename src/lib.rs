@@ -119,11 +119,11 @@ where
     Iter::new(iter)
 }
 
-pub fn map<F, T, TE1, TE2>((expr1, expr2): (TE1, TE2), f: F) -> Map2<F, TE1, TE2>
+pub fn map<F, T, E1, E2>((expr1, expr2): (E1, E2), f: F) -> Map2<F, E1, E2>
 where
-    TE1: Expr,
-    TE2: Expr,
-    F: FnMut((TE1::Item, TE2::Item)) -> T,
+    E1: Expr,
+    E2: Expr,
+    F: FnMut((E1::Item, E2::Item)) -> T,
 {
     Map2::new(f, expr1, expr2)
 }
