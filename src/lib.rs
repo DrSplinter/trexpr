@@ -12,7 +12,7 @@ use expr::Map3;
 use expr::Print;
 
 //
-// Expressions
+// Expression
 //
 
 pub trait Expr {
@@ -83,7 +83,7 @@ pub trait Action {
     type Item;
     type Future: Future<Output = ()>;
 
-    fn to_future(self) -> Self::Future;
+    fn execute(self) -> Self::Future;
 }
 
 //

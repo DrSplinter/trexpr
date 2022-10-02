@@ -48,7 +48,7 @@ where
 
 #[tokio::main]
 async fn main() {
-    let exchange = iter([
+    let prices = iter([
         Bar::new(1.0, 1.0),
         Bar::new(1.0, 1.6),
         Bar::new(1.7, 1.8),
@@ -56,21 +56,30 @@ async fn main() {
         Bar::new(1.4, 1.5),
     ]);
 
-    let close = exchange.clone().close();
-    let open = exchange.open();
+    let close = prices.clone().close();
+    let open = prices.open();
 
     when(close.less_than(open), "be in NO trade", "be in BUY trade")
         .print()
-        .to_future()
+        .execute()
         .await;
-
-    // let close = exchange.close();
-    // let ma = (&close).ma(5);
-    // let cross = close.cross_up(ma);
-    // let time_since_last_cross = time_since(&cross, close.greater_than(ma)).time_shift(-1);
-
-    // when(cross.and(time_since_last_cross < 10), "be in NO trade", "be in BUY trade")
-    //     .print()
-    //     .to_future()
-    //     .await;
 }
+
+//
+// Next level
+//
+
+// #[tokio::main]
+// async fn main() {
+//     let bf = bitfinex("eth", "btc", Bar1min);
+//     let kr = kraken("eth", "btc", Bar1min);
+//     let bf_got_above_kr = (&bf).close().got_above((&kr).close());
+//     let bf_got_below_kr = bf.close().got_below(kr.close());
+//     let time_bf_was_above_kr = time_since(&bf_got_above_kr, not(&bf_got_below_kr));
+
+//     when(bf_got_below_kr.and(time_bf_was_above_kr.greate_than(100)), "Alert")
+//         .send(alert_topic)
+//         .send(dashboard)
+//         .execute()
+//         .await;
+// }

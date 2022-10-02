@@ -24,7 +24,7 @@ where
     type Item = T::Item;
     type Future = futures::stream::ForEach<T::Stream, Ready<()>, fn(T::Item) -> Ready<()>>;
 
-    fn to_future(self) -> Self::Future {
+    fn execute(self) -> Self::Future {
         self.arg.to_stream().for_each(|x| {
             println!("{}", x);
             ready(())
